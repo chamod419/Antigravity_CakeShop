@@ -1,0 +1,13 @@
+/* Intersection Observer Scroll-Linked Animations */
+.reveal-section {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1), 
+              transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, opacity;
+}
+
+.reveal-section.active {
+  opacity: 1;
+  transform: translateY(0);
+}

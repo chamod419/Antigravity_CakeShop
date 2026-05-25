@@ -1,0 +1,514 @@
+.builder-section {
+  background-color: var(--color-gold-light);
+  position: relative;
+}
+
+.builder-subtitle {
+  font-size: 0.85rem;
+  letter-spacing: 4px;
+  font-weight: 600;
+  color: var(--color-gold);
+  text-transform: uppercase;
+}
+
+.builder-title {
+  font-size: 3rem;
+  color: var(--text-dark);
+  margin-bottom: 1rem;
+}
+
+.builder-description-text {
+  max-width: 600px;
+  margin: 0 auto 4rem auto;
+  color: var(--text-muted);
+  font-weight: 300;
+}
+
+.builder-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 3.5rem;
+  align-items: start;
+}
+
+@media (max-width: 968px) {
+  .builder-grid {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+}
+
+/* Visualizer Panel styling */
+.builder-visualizer {
+  height: 580px;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 15px 40px rgba(42, 11, 21, 0.08);
+  position: sticky;
+  top: 100px;
+  padding: 3rem;
+}
+
+@media (max-width: 968px) {
+  .builder-visualizer {
+    position: relative;
+    top: 0;
+    height: 400px;
+    padding: 1.5rem;
+  }
+}
+
+.cake-display-stand {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  justify-content: flex-end;
+  padding-bottom: 40px;
+}
+
+.stand-plate {
+  width: 320px;
+  height: 14px;
+  background: linear-gradient(90deg, #ebd0a7, #c5a059);
+  border-radius: 50% / 50%;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+  z-index: 5;
+}
+
+.stand-base {
+  width: 100px;
+  height: 60px;
+  background: linear-gradient(180deg, #b89772, #2a0b15);
+  clip-path: polygon(15% 0%, 85% 0%, 100% 100%, 0% 100%);
+  margin-top: -6px;
+  z-index: 4;
+}
+
+.cake-tiers-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: absolute;
+  bottom: 45px;
+  width: 100%;
+  z-index: 6;
+}
+
+/* Cake Tier 3D Cylinder */
+.cake-tier {
+  width: 240px;
+  height: 120px;
+  border-radius: 120px / 40px;
+  position: relative;
+  transition: var(--transition-smooth);
+  box-shadow: inset 0 -20px 30px rgba(0, 0, 0, 0.12), 
+              0 10px 15px rgba(42, 11, 21, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+/* 3D Top surface oval simulation */
+.cake-tier::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 40px;
+  background: inherit;
+  border-radius: 50% / 50%;
+  filter: brightness(1.05);
+  border-bottom: 1.5px solid rgba(255, 255, 255, 0.2);
+  z-index: 2;
+  box-shadow: inset 0 2px 5px rgba(255, 255, 255, 0.3);
+}
+
+.tier-top {
+  width: 170px;
+  height: 90px;
+  border-radius: 85px / 30px;
+  margin-bottom: -15px; /* overlay tier bottom */
+  z-index: 8;
+}
+
+.tier-top::before {
+  height: 30px;
+}
+
+.tier-bottom {
+  z-index: 7;
+}
+
+/* Naked style stripes */
+.naked-stripes {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.95;
+  border-radius: inherit;
+}
+
+/* Textured icing */
+.textured-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: repeating-linear-gradient(45deg, rgba(255,255,255,0.05), rgba(255,255,255,0.05) 10px, rgba(0,0,0,0.03) 10px, rgba(0,0,0,0.03) 20px);
+  border-radius: inherit;
+}
+
+/* Edge Piping */
+.piping-rim {
+  position: absolute;
+  width: 104%;
+  height: 8px;
+  border-radius: 50%;
+  z-index: 3;
+  filter: brightness(0.92);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.piping-rim.top {
+  bottom: 0px;
+}
+
+.piping-rim.bottom {
+  bottom: 0px;
+}
+
+/* Custom Writing style */
+.tier-text {
+  position: absolute;
+  top: 45%;
+  z-index: 10;
+  font-size: 1.1rem;
+  text-align: center;
+  width: 80%;
+  pointer-events: none;
+  text-shadow: 0px 1px 2px rgba(255, 255, 255, 0.5);
+  letter-spacing: 0.5px;
+}
+
+.tier-top .tier-text {
+  top: 40%;
+}
+
+.tier-text.cursive {
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-weight: 600;
+}
+
+.tier-text.serif {
+  font-family: var(--font-body);
+  font-weight: 500;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 2px;
+}
+
+.tier-text.dark-font {
+  color: var(--text-dark);
+}
+
+.tier-text.light-font {
+  color: var(--text-light);
+  text-shadow: 0px 1px 2px rgba(0, 0, 0, 0.6);
+}
+
+/* Toppings visual representations */
+.toppings-visual-container {
+  position: absolute;
+  top: -20px;
+  width: 100%;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 12;
+  pointer-events: none;
+}
+
+.topping-item {
+  font-size: 1.4rem;
+  letter-spacing: 8px;
+  text-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.macaron-topping {
+  position: absolute;
+  top: -8px;
+}
+
+.flower-topping {
+  position: absolute;
+  top: -12px;
+  font-size: 1.6rem;
+}
+
+.berry-topping {
+  position: absolute;
+  top: -6px;
+}
+
+.gold-topping {
+  position: absolute;
+  top: -5px;
+  font-size: 2.2rem;
+  color: var(--color-gold);
+}
+
+/* Geometric Square modifiers */
+.shape-square .cake-tier {
+  border-radius: 8px;
+  box-shadow: inset 0 -15px 25px rgba(0, 0, 0, 0.12), 
+              0 8px 12px rgba(42, 11, 21, 0.1);
+}
+
+.shape-square .cake-tier::before {
+  border-radius: 8px;
+  height: 15px;
+}
+
+.shape-square .stand-plate {
+  border-radius: 8px;
+}
+
+/* Config panel styling */
+.builder-config {
+  background: white;
+  padding: 2.5rem;
+  border-radius: 20px;
+  box-shadow: 0 15px 40px rgba(42, 11, 21, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.config-title {
+  font-size: 1.8rem;
+  color: var(--text-dark);
+  border-bottom: 1.5px solid var(--color-gold-light);
+  padding-bottom: 1rem;
+}
+
+.config-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.section-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--color-gold);
+}
+
+.sub-section-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.option-row {
+  display: flex;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+
+.option-chip {
+  background: var(--bg-cream);
+  border: 1px solid rgba(42, 11, 21, 0.1);
+  color: var(--text-dark);
+  padding: 0.6rem 1.2rem;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 5500;
+  transition: var(--transition-fast);
+}
+
+.option-chip:hover, .option-chip.active {
+  background: var(--bg-burgundy);
+  color: var(--text-light);
+  border-color: var(--bg-burgundy);
+}
+
+/* Color palettes styling */
+.color-palette-row {
+  display: flex;
+  gap: 0.8rem;
+}
+
+.color-chip {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+  transition: var(--transition-fast);
+}
+
+.color-chip:hover, .color-chip.active {
+  border-color: var(--color-gold);
+  transform: scale(1.1);
+}
+
+/* Flavor grid */
+.option-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.8rem;
+}
+
+.flavor-btn-item {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  background: var(--bg-cream);
+  border: 1.5px solid rgba(42, 11, 21, 0.08);
+  padding: 0.8rem 1rem;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+  text-align: left;
+}
+
+.flavor-btn-item:hover, .flavor-btn-item.active {
+  border-color: var(--color-gold);
+  background: white;
+  box-shadow: 0 4px 12px rgba(197, 160, 89, 0.15);
+}
+
+.flavor-color-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1px solid rgba(0,0,0,0.1);
+}
+
+.flavor-name-label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-dark);
+}
+
+/* Toppings list cards */
+.toppings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.topping-checkbox-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: var(--bg-cream);
+  border: 1px solid rgba(42, 11, 21, 0.08);
+  padding: 0.8rem 1.2rem;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.topping-checkbox-card input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--bg-burgundy);
+  cursor: pointer;
+}
+
+.topping-emoji {
+  font-size: 1.3rem;
+}
+
+.topping-details {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.topping-title-label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-dark);
+}
+
+.topping-price-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-gold);
+}
+
+.topping-checkbox-card.checked {
+  border-color: var(--color-gold);
+  background: white;
+  box-shadow: 0 4px 12px rgba(197, 160, 89, 0.15);
+}
+
+/* Personalized text input */
+.script-input {
+  width: 100%;
+  background: var(--bg-cream);
+  border: 1px solid rgba(42, 11, 21, 0.1);
+  padding: 0.8rem 1.2rem;
+  border-radius: 12px;
+  outline: none;
+  font-size: 0.9rem;
+  color: var(--text-dark);
+  transition: var(--transition-fast);
+}
+
+.script-input:focus {
+  border-color: var(--color-gold);
+  background: white;
+}
+
+/* Config Footer */
+.config-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid rgba(42, 11, 21, 0.1);
+  padding-top: 1.5rem;
+  margin-top: 1rem;
+}
+
+.price-box {
+  display: flex;
+  flex-direction: column;
+}
+
+.price-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.price-amount {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--bg-burgundy);
+}
+
+.inquiry-submit-btn {
+  padding: 1rem 1.8rem;
+}
