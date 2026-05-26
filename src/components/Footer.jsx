@@ -6,7 +6,7 @@ export default function Footer({ onNavigate }) {
   const [subscribed, setSubscribed] = useState(false);
   const [error, setError] = useState('');
 
-  const handleSubscribe = (e) => {
+  const handleSubscribe = async (e) => {
     e.preventDefault();
     if (!email) {
       setError('Please enter your email address');
@@ -17,12 +17,31 @@ export default function Footer({ onNavigate }) {
       setError('Please enter a valid email address');
       return;
     }
+    
     setError('');
-    setSubscribed(true);
-    setEmail('');
-    setTimeout(() => {
-      setSubscribed(false);
-    }, 4000);
+    
+    try {
+      const res = await fetch('http://localhost:5000/api/subscribers', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email })
+      });
+      const data = await res.json();
+      if (!data.error) {
+        setSubscribed(true);
+        setEmail('');
+        setTimeout(() => {
+          setSubscribed(false);
+        }, 4000);
+      } else {
+        setError('Failed to subscribe. Try again.');
+      }
+    } catch (err) {
+      console.error('Newsletter subscription error:', err.message);
+      setError('Connection error. Please try again.');
+    }
   };
 
   return (
@@ -56,6 +75,7 @@ export default function Footer({ onNavigate }) {
             <li><a href="#builder" onClick={(e) => { e.preventDefault(); onNavigate('builder'); }}>Cake Designer</a></li>
             <li><a href="#quiz" onClick={(e) => { e.preventDefault(); onNavigate('quiz'); }}>Taste Quiz</a></li>
             <li><a href="#inquiry" onClick={(e) => { e.preventDefault(); onNavigate('inquiry'); }}>Book Inquiry</a></li>
+            <li><a href="#admin" onClick={(e) => { e.preventDefault(); onNavigate('admin'); }} style={{ color: 'var(--color-gold)', fontWeight: '500' }}>Admin Control Suite</a></li>
           </ul>
         </div>
 

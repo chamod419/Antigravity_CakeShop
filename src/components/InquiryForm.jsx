@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import './InquiryForm.css';
 
-export default function InquiryForm({ inquiryList = [], onRemoveItem, onClearInquiry, onNavigate }) {
+export default function InquiryForm({ inquiryList = [], onRemoveItem, onClearInquiry, onBookingSubmit, onNavigate }) {
   const [step, setStep] = useState(1); // 1, 2, 3 (Success)
-  
+  const [successData, setSuccessData] = useState(null);
+
   // Form fields
   const [formData, setFormData] = useState({
     name: '',
@@ -61,20 +62,25 @@ export default function InquiryForm({ inquiryList = [], onRemoveItem, onClearInq
     setStep(1);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (validateStep2()) {
       setIsSubmitting(true);
-      setTimeout(() => {
-        setIsSubmitting(false);
+      const result = await onBookingSubmit(formData);
+      setIsSubmitting(false);
+      if (result) {
+        setSuccessData(result);
         setStep(3); // Success Screen
-      }, 2000);
+      } else {
+        setErrors(prev => ({ ...prev, submit: 'Server integration failure. Please try again.' }));
+      }
     }
   };
 
   const handleSuccessClose = () => {
     onClearInquiry();
     setStep(1);
+    setSuccessData(null);
     setFormData({
       name: '',
       email: '',
@@ -263,6 +269,8 @@ export default function InquiryForm({ inquiryList = [], onRemoveItem, onClearInq
                         ></textarea>
                       </div>
 
+                      {errors.submit && <span className="field-error" style={{ textAlign: 'center' }}>{errors.submit}</span>}
+
                       <div className="form-nav-buttons-row">
                         <button type="button" className="btn-secondary" onClick={handlePrevStep}>
                           Back
@@ -280,18 +288,18 @@ export default function InquiryForm({ inquiryList = [], onRemoveItem, onClearInq
         )}
 
         {/* Full Screen Success Overlay Modal */}
-        {step === 3 && (
+        {step === 3 && successData && (
           <div className="success-overlay flex-center animate-fade">
             <div className="success-card glass-card text-center">
               <div className="success-icon-badge">✓</div>
               <h3 className="success-card-title">Inquiry Sent Successfully</h3>
               <p className="success-card-desc">
-                Thank you, <strong>{formData.name}</strong>. Your inquiry has been registered. A details copy has been sent to <strong>{formData.email}</strong>.
+                Thank you, <strong>{successData.name}</strong>. Your inquiry has been registered. A details copy has been sent to <strong>{successData.email}</strong>.
               </p>
               
               <div className="reference-code-box">
                 <span className="ref-label">Inquiry Reference Code</span>
-                <span className="ref-code">LL-{Math.floor(100000 + Math.random() * 900000)}</span>
+                <span className="ref-code">{successData.referenceCode}</span>
               </div>
 
               <p className="success-next-steps">Our artisan cake concierge will call/email you shortly to finalize details and deposit information.</p>

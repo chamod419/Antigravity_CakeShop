@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import './Gallery.css';
 
-const CAKE_COLLECTION = [
+const DEFAULT_COLLECTION = [
   {
-    id: 'duchess',
+    _id: 'duchess',
     title: 'The Duchess',
     category: 'weddings',
     price: '$320',
@@ -14,7 +14,7 @@ const CAKE_COLLECTION = [
     highlights: ['Edible Gold Leaf', 'Fresh Organic Peonies', 'Silky Swiss Meringue']
   },
   {
-    id: 'midnight-cocoa',
+    _id: 'midnight-cocoa',
     title: 'Midnight Cocoa Drip',
     category: 'chocolate',
     price: '$85',
@@ -25,7 +25,7 @@ const CAKE_COLLECTION = [
     highlights: ['Belgian Ganache', 'Fresh Blackberries', 'Edible Gold Dust']
   },
   {
-    id: 'emerald-crepe',
+    _id: 'emerald-crepe',
     title: 'Emerald Crepe',
     category: 'seasonal',
     price: '$75',
@@ -36,7 +36,7 @@ const CAKE_COLLECTION = [
     highlights: ['20 Micro-layers', 'Authentic Matcha', 'Fresh Cherries']
   },
   {
-    id: 'crimson-swirl',
+    _id: 'crimson-swirl',
     title: 'Crimson Swirl',
     category: 'signature',
     price: '$90',
@@ -48,17 +48,19 @@ const CAKE_COLLECTION = [
   }
 ];
 
-export default function Gallery({ onSelectCake, onAddToInquiry }) {
+export default function Gallery({ cakesList = [], onAddToInquiry }) {
   const [activeFilter, setActiveFilter] = useState('all');
   const [selectedCake, setSelectedCake] = useState(null);
 
+  const displayCollection = cakesList.length > 0 ? cakesList : DEFAULT_COLLECTION;
+
   const filteredCakes = activeFilter === 'all' 
-    ? CAKE_COLLECTION 
-    : CAKE_COLLECTION.filter(cake => cake.category === activeFilter);
+    ? displayCollection 
+    : displayCollection.filter(cake => cake.category === activeFilter);
 
   const handleInquiryClick = (cake) => {
     onAddToInquiry({
-      id: cake.id,
+      id: cake._id,
       name: cake.title,
       type: 'Collection Cake',
       price: cake.price,
@@ -89,7 +91,7 @@ export default function Gallery({ onSelectCake, onAddToInquiry }) {
 
         <div className="gallery-grid">
           {filteredCakes.map(cake => (
-            <div key={cake.id} className="cake-card glass-card" onClick={() => setSelectedCake(cake)}>
+            <div key={cake._id} className="cake-card glass-card" onClick={() => setSelectedCake(cake)}>
               <div className="cake-card-image-wrapper">
                 <img src={cake.image} alt={cake.title} className="cake-card-image" />
                 <div className="cake-card-overlay">

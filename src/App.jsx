@@ -6,14 +6,40 @@ import CakeBuilder from './components/CakeBuilder';
 import TasteProfiler from './components/TasteProfiler';
 import InquiryForm from './components/InquiryForm';
 import Footer from './components/Footer';
+import AdminPanel from './components/AdminPanel';
 import './App.css';
 
+const API_BASE = 'http://localhost:5000/api';
+
 function App() {
+  const [cakesList, setCakesList] = useState([]);
   const [inquiryList, setInquiryList] = useState([]);
   const [prefilledCake, setPrefilledCake] = useState(null);
+  const [showAdmin, setShowAdmin] = useState(false);
+
+  // Fetch cakes collection from Backend API
+  const fetchCakes = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/cakes`);
+      const data = await res.json();
+      if (!data.error) {
+        setCakesList(data);
+      }
+    } catch (err) {
+      console.error('Error fetching cakes from backend:', err.message);
+    }
+  };
+
+  useEffect(() => {
+    fetchCakes();
+  }, []);
 
   // Navigation controller
   const navigateToSection = (sectionId) => {
+    if (sectionId === 'admin') {
+      setShowAdmin(true);
+      return;
+    }
     const el = document.getElementById(sectionId);
     if (el) {
       el.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -23,11 +49,9 @@ function App() {
   // Add Item to Inquiry
   const handleAddToInquiry = (item) => {
     setInquiryList(prev => {
-      // Avoid duplicate inquiry of the exact same configuration id
       if (prev.some(i => i.id === item.id)) return prev;
       return [...prev, item];
     });
-    // Auto-scroll user to the inquiry section to review their basket
     setTimeout(() => navigateToSection('inquiry'), 500);
   };
 
@@ -36,16 +60,34 @@ function App() {
     setInquiryList(prev => prev.filter(i => i.id !== itemId));
   };
 
-  // Clear Basket on Success booking
-  const handleClearInquiry = () => {
-    setInquiryList([]);
-    setPrefilledCake(null);
+  // Clear Basket on Success booking (Submit booking to Backend)
+  const handleBookingSubmit = async (formData) => {
+    try {
+      const res = await fetch(`${API_BASE}/inquiries`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          ...formData,
+          items: inquiryList
+        })
+      });
+      const data = await res.json();
+      if (!data.error) {
+        setInquiryList([]);
+        setPrefilledCake(null);
+        return data; // returns created inquiry containing reference code
+      }
+    } catch (err) {
+      console.error('Error submitting inquiry to server:', err.message);
+      return null;
+    }
   };
 
   // Load Quiz Match inside designer
   const handleLoadInDesigner = (cakeConfig) => {
     setPrefilledCake(cakeConfig);
-    // Smooth scroll down to the builder
     setTimeout(() => navigateToSection('builder'), 100);
   };
 
@@ -68,7 +110,7 @@ function App() {
     return () => {
       reveals.forEach(el => observer.unobserve(el));
     };
-  }, []);
+  }, [cakesList]); // Re-run when cakes load to bind elements
 
   return (
     <>
@@ -78,6 +120,7 @@ function App() {
       
       <div className="reveal-section fade-up-section">
         <Gallery 
+          cakesList={cakesList}
           onAddToInquiry={handleAddToInquiry} 
         />
       </div>
@@ -100,12 +143,22 @@ function App() {
         <InquiryForm 
           inquiryList={inquiryList} 
           onRemoveItem={handleRemoveItem}
-          onClearInquiry={handleClearInquiry}
+          onBookingSubmit={handleBookingSubmit}
           onNavigate={navigateToSection}
         />
       </div>
 
       <Footer onNavigate={navigateToSection} />
+
+      {/* Admin Panel Dialog Dashboard */}
+      {showAdmin && (
+        <AdminPanel 
+          onClose={() => {
+            setShowAdmin(false);
+            fetchCakes(); // reload catalog in case admin added/deleted cakes
+          }} 
+        />
+      )}
     </>
   );
 }
