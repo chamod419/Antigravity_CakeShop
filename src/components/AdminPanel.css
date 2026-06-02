@@ -322,6 +322,22 @@
   color: white;
 }
 
+/* Social media providers badges in Users Manager */
+.status-badge-val.provider-local {
+  background: var(--bg-burgundy) !important;
+  color: white;
+}
+
+.status-badge-val.provider-google {
+  background: #4285F4 !important;
+  color: white;
+}
+
+.status-badge-val.provider-facebook {
+  background: #1877F2 !important;
+  color: white;
+}
+
 .status-selector-dropdown {
   background: var(--bg-cream);
   border: 1px solid rgba(42, 11, 21, 0.1);

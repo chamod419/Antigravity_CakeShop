@@ -9,13 +9,15 @@ export default function AdminPanel({ onClose }) {
   const [pinError, setPinError] = useState('');
   
   // View states
-  const [activeTab, setActiveTab] = useState('stats'); // stats, inquiries, cakes, subscribers
+  const [activeTab, setActiveTab] = useState('stats'); // stats, inquiries, cakes, subscribers, promotions, users
   
   // Data states
   const [stats, setStats] = useState({ totalInquiries: 0, pendingInquiries: 0, totalSubscribers: 0, estimatedRevenue: '$0' });
   const [inquiries, setInquiries] = useState([]);
   const [cakes, setCakes] = useState([]);
   const [subscribers, setSubscribers] = useState([]);
+  const [promotions, setPromotions] = useState([]);
+  const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   
   // Cake manager states
@@ -24,6 +26,13 @@ export default function AdminPanel({ onClose }) {
     image: '/wedding_cake.png', flavors: '', servings: '15-20 guests', highlights: ''
   });
   const [editingCakeId, setEditingCakeId] = useState(null);
+
+  // Promotion campaign manager states
+  const [newPromo, setNewPromo] = useState({
+    title: '', subtitle: '', discountText: '15% OFF', couponCode: '',
+    image: '/chocolate_cake.png', isActive: true
+  });
+  const [editingPromoId, setEditingPromoId] = useState(null);
 
   // Verification PIN Authentication
   const handlePinSubmit = (e) => {
@@ -40,7 +49,7 @@ export default function AdminPanel({ onClose }) {
 
   const fetchAdminData = async () => {
     setLoading(true);
-    const headers = { 'x-admin-pin': '1234' }; // Pass matching verification passcode
+    const headers = { 'x-admin-pin': '1234' };
     try {
       // 1. Fetch Stats
       const statsRes = await fetch(`${API_BASE}/admin/stats`, { headers });
@@ -61,6 +70,16 @@ export default function AdminPanel({ onClose }) {
       const cakeRes = await fetch(`${API_BASE}/cakes`);
       const cakeData = await cakeRes.json();
       if (!cakeData.error) setCakes(cakeData);
+
+      // 5. Fetch Promotions
+      const promoRes = await fetch(`${API_BASE}/admin/promotions`, { headers });
+      const promoData = await promoRes.json();
+      if (!promoData.error) setPromotions(promoData);
+
+      // 6. Fetch Users
+      const userRes = await fetch(`${API_BASE}/admin/users`, { headers });
+      const userData = await userRes.json();
+      if (!userData.error) setUsers(userData);
 
     } catch (err) {
       console.error('Error loading admin panel records:', err.message);
@@ -93,7 +112,9 @@ export default function AdminPanel({ onClose }) {
     }
   };
 
-  // Delete Cake Creation
+  // ==========================================
+  // CATALOG MANAGER CRUD - CAKES
+  // ==========================================
   const handleDeleteCake = async (id) => {
     if (!window.confirm('Are you sure you want to delete this cake from the catalog?')) return;
     try {
@@ -109,7 +130,6 @@ export default function AdminPanel({ onClose }) {
     }
   };
 
-  // Add/Update Cake Submission
   const handleCakeSubmit = async (e) => {
     e.preventDefault();
     const headers = {
@@ -117,13 +137,11 @@ export default function AdminPanel({ onClose }) {
       'x-admin-pin': '1234'
     };
     
-    // Parse highlights string to array
     const highlightArr = newCake.highlights.split(',').map(h => h.trim()).filter(Boolean);
     const payload = { ...newCake, highlights: highlightArr };
 
     try {
       if (editingCakeId) {
-        // PUT edit cake
         const res = await fetch(`${API_BASE}/admin/cakes/${editingCakeId}`, {
           method: 'PUT',
           headers,
@@ -136,7 +154,6 @@ export default function AdminPanel({ onClose }) {
           resetCakeForm();
         }
       } else {
-        // POST create cake
         const res = await fetch(`${API_BASE}/admin/cakes`, {
           method: 'POST',
           headers,
@@ -173,6 +190,102 @@ export default function AdminPanel({ onClose }) {
       image: '/wedding_cake.png', flavors: '', servings: '15-20 guests', highlights: ''
     });
     setEditingCakeId(null);
+  };
+
+  // ==========================================
+  // CAMPAIGN PROMOTION MANAGER CRUD
+  // ==========================================
+  const handleDeletePromotion = async (id) => {
+    if (!window.confirm('Delete this promotion from active announcements list?')) return;
+    try {
+      const res = await fetch(`${API_BASE}/admin/promotions/${id}`, {
+        method: 'DELETE',
+        headers: { 'x-admin-pin': '1234' }
+      });
+      if (res.ok) {
+        setPromotions(prev => prev.filter(p => p._id !== id));
+      }
+    } catch (err) {
+      console.error('Failed to delete promotion:', err.message);
+    }
+  };
+
+  const handlePromotionSubmit = async (e) => {
+    e.preventDefault();
+    const headers = {
+      'Content-Type': 'application/json',
+      'x-admin-pin': '1234'
+    };
+
+    try {
+      if (editingPromoId) {
+        // PUT edit promo
+        const res = await fetch(`${API_BASE}/admin/promotions/${editingPromoId}`, {
+          method: 'PUT',
+          headers,
+          body: JSON.stringify(newPromo)
+        });
+        const data = await res.json();
+        if (!data.error) {
+          setPromotions(prev => prev.map(p => p._id === editingPromoId ? data : p));
+          setEditingPromoId(null);
+          resetPromoForm();
+        }
+      } else {
+        // POST create promo
+        const res = await fetch(`${API_BASE}/admin/promotions`, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify(newPromo)
+        });
+        const data = await res.json();
+        if (!data.error) {
+          setPromotions(prev => [data, ...prev]);
+          resetPromoForm();
+        }
+      }
+    } catch (err) {
+      console.error('Error submitting promotion:', err.message);
+    }
+  };
+
+  const handleTogglePromoActive = async (promo) => {
+    try {
+      const res = await fetch(`${API_BASE}/admin/promotions/${promo._id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-pin': '1234'
+        },
+        body: JSON.stringify({ isActive: !promo.isActive })
+      });
+      const data = await res.json();
+      if (!data.error) {
+        setPromotions(prev => prev.map(p => p._id === promo._id ? data : p));
+      }
+    } catch (err) {
+      console.error('Failed to toggle promotion active status:', err.message);
+    }
+  };
+
+  const handleEditPromoClick = (promo) => {
+    setEditingPromoId(promo._id);
+    setNewPromo({
+      title: promo.title,
+      subtitle: promo.subtitle || '',
+      discountText: promo.discountText || '',
+      couponCode: promo.couponCode || '',
+      image: promo.image || '/chocolate_cake.png',
+      isActive: promo.isActive
+    });
+  };
+
+  const resetPromoForm = () => {
+    setNewPromo({
+      title: '', subtitle: '', discountText: '15% OFF', couponCode: '',
+      image: '/chocolate_cake.png', isActive: true
+    });
+    setEditingPromoId(null);
   };
 
   return (
@@ -224,8 +337,14 @@ export default function AdminPanel({ onClose }) {
               <button className={`sidebar-tab ${activeTab === 'cakes' ? 'active' : ''}`} onClick={() => setActiveTab('cakes')}>
                 🍰 Catalog Manager ({cakes.length})
               </button>
+              <button className={`sidebar-tab ${activeTab === 'promotions' ? 'active' : ''}`} onClick={() => setActiveTab('promotions')}>
+                🎁 Campaign Promos ({promotions.length})
+              </button>
               <button className={`sidebar-tab ${activeTab === 'subscribers' ? 'active' : ''}`} onClick={() => setActiveTab('subscribers')}>
                 👥 Newsletter Club ({subscribers.length})
+              </button>
+              <button className={`sidebar-tab ${activeTab === 'users' ? 'active' : ''}`} onClick={() => setActiveTab('users')}>
+                👑 Customers List ({users.length})
               </button>
             </aside>
 
@@ -413,7 +532,83 @@ export default function AdminPanel({ onClose }) {
                     </div>
                   )}
 
-                  {/* TAB 4: Newsletter Subscribers */}
+                  {/* TAB 4: Campaign Promotions Manager */}
+                  {activeTab === 'promotions' && (
+                    <div className="tab-viewpromotions animate-fade">
+                      <div className="cakes-tab-header">
+                        <h3 className="tab-title">Announcements & Promotions</h3>
+                        {editingPromoId && (
+                          <button className="btn-secondary" onClick={resetPromoForm}>Cancel Editing</button>
+                        )}
+                      </div>
+
+                      {/* Add/Edit Promotion Form */}
+                      <form onSubmit={handlePromotionSubmit} className="cake-editor-form glass-card">
+                        <h4 className="form-sub-heading">{editingPromoId ? 'Edit Campaign Banner' : 'Create New Promotional Popup'}</h4>
+                        <div className="form-inputs-grid">
+                          <input 
+                            type="text" placeholder="Promo Title (e.g. Winter Delicacy)"
+                            value={newPromo.title} required
+                            onChange={(e) => setNewPromo(prev => ({ ...prev, title: e.target.value }))}
+                          />
+                          <input 
+                            type="text" placeholder="Discount Text (e.g. 15% OFF)"
+                            value={newPromo.discountText}
+                            onChange={(e) => setNewPromo(prev => ({ ...prev, discountText: e.target.value }))}
+                          />
+                          <input 
+                            type="text" placeholder="Coupon Code (e.g. WELCOME15)"
+                            value={newPromo.couponCode}
+                            onChange={(e) => setNewPromo(prev => ({ ...prev, couponCode: e.target.value }))}
+                          />
+                          <input 
+                            type="text" placeholder="Subtitle description notes..."
+                            value={newPromo.subtitle}
+                            onChange={(e) => setNewPromo(prev => ({ ...prev, subtitle: e.target.value }))}
+                            style={{ gridColumn: 'span 2' }}
+                          />
+                          <input 
+                            type="text" placeholder="Image URL (e.g. /chocolate_cake.png)"
+                            value={newPromo.image}
+                            onChange={(e) => setNewPromo(prev => ({ ...prev, image: e.target.value }))}
+                          />
+                        </div>
+                        <button type="submit" className="btn-primary form-submit-cake-btn">
+                          {editingPromoId ? 'Apply Updates' : 'Publish Promotion'}
+                        </button>
+                      </form>
+
+                      {/* Promotions List */}
+                      <div className="cakes-catalog-list">
+                        {promotions.map(promo => (
+                          <div key={promo._id} className="cake-catalog-item-card glass-card">
+                            <div className="catalog-item-info">
+                              <span className="catalog-item-cat" style={{ color: promo.isActive ? '#27ae60' : '#7f8c8d' }}>
+                                {promo.isActive ? '● Active Announcement' : '○ Inactive/Hidden'}
+                              </span>
+                              <h4 className="catalog-item-title">{promo.title}</h4>
+                              <span className="catalog-item-price" style={{ fontSize: '0.85rem' }}>
+                                Code: <strong>{promo.couponCode || 'N/A'}</strong> | Discount: {promo.discountText || 'N/A'}
+                              </span>
+                            </div>
+                            <div className="catalog-item-actions">
+                              <button 
+                                className="btn-secondary"
+                                onClick={() => handleTogglePromoActive(promo)}
+                                style={{ background: promo.isActive ? '#f39c12' : '#27ae60', color: 'white', borderColor: 'transparent' }}
+                              >
+                                {promo.isActive ? 'Deactivate' : 'Activate'}
+                              </button>
+                              <button className="btn-secondary" onClick={() => handleEditPromoClick(promo)}>Edit</button>
+                              <button className="btn-primary delete-btn" onClick={() => handleDeletePromotion(promo._id)}>Delete</button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* TAB 5: Newsletter Subscribers */}
                   {activeTab === 'subscribers' && (
                     <div className="tab-viewsubscribers animate-fade">
                       <div className="subscribers-header">
@@ -436,6 +631,50 @@ export default function AdminPanel({ onClose }) {
                             <span className="sub-date">Subscribed: {new Date(sub.createdAt).toLocaleDateString()}</span>
                           </div>
                         ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* TAB 6: Users List */}
+                  {activeTab === 'users' && (
+                    <div className="tab-viewusers animate-fade">
+                      <h3 className="tab-title">Boutique Accounts Members</h3>
+                      <div className="table-responsive">
+                        <table className="admin-table">
+                          <thead>
+                            <tr>
+                              <th>Avatar</th>
+                              <th>Name</th>
+                              <th>Email</th>
+                              <th>Login Type</th>
+                              <th>Registration Date</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {users.map(usr => (
+                              <tr key={usr._id}>
+                                <td>
+                                  {usr.avatar ? (
+                                    <img src={usr.avatar} alt={usr.name} className="catalog-item-img" style={{ width: '40px', height: '40px', borderRadius: '50%' }} />
+                                  ) : (
+                                    <span className="navbar-avatar-initial" style={{ width: '40px', height: '40px', fontSize: '1.1rem' }}>{usr.name.charAt(0)}</span>
+                                  )}
+                                </td>
+                                <td><strong>{usr.name}</strong></td>
+                                <td>{usr.email}</td>
+                                <td>
+                                  <span className={`status-badge-val provider-${usr.provider || 'local'}`} style={{
+                                    background: usr.provider === 'google' ? '#4285F4' : usr.provider === 'facebook' ? '#1877F2' : '#2a0b15',
+                                    color: 'white'
+                                  }}>
+                                    {usr.provider || 'local'}
+                                  </span>
+                                </td>
+                                <td>{new Date(usr.createdAt).toLocaleDateString()}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
                       </div>
                     </div>
                   )}

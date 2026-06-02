@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import './InquiryForm.css';
 
-export default function InquiryForm({ inquiryList = [], onRemoveItem, onClearInquiry, onBookingSubmit, onNavigate }) {
+export default function InquiryForm({ inquiryList = [], onRemoveItem, onClearInquiry, onBookingSubmit, onNavigate, currentUser }) {
   const [step, setStep] = useState(1); // 1, 2, 3 (Success)
   const [successData, setSuccessData] = useState(null);
 
@@ -15,6 +15,17 @@ export default function InquiryForm({ inquiryList = [], onRemoveItem, onClearInq
     address: '',
     notes: ''
   });
+
+  // Prefill form if customer is logged in
+  React.useEffect(() => {
+    if (currentUser) {
+      setFormData(prev => ({
+        ...prev,
+        name: currentUser.name,
+        email: currentUser.email
+      }));
+    }
+  }, [currentUser]);
 
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);

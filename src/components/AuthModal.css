@@ -1,0 +1,160 @@
+.auth-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(26, 9, 16, 0.75);
+  backdrop-filter: blur(12px);
+  z-index: 6000;
+  padding: 2rem;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 440px;
+  background: white;
+  padding: 3rem 2.5rem;
+  border-radius: 24px;
+  position: relative;
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(197, 160, 89, 0.3);
+}
+
+.auth-close-btn {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  font-size: 2.2rem;
+  border: none;
+  background: transparent;
+  color: var(--text-dark);
+  cursor: pointer;
+  opacity: 0.6;
+  transition: var(--transition-fast);
+  line-height: 1;
+}
+
+.auth-close-btn:hover {
+  opacity: 1;
+  color: var(--color-gold);
+}
+
+/* Tabs list styling */
+.auth-tabs {
+  display: flex;
+  margin-bottom: 2rem;
+  border-bottom: 1.5px solid var(--color-gold-light);
+}
+
+.auth-tab-btn {
+  flex: 1;
+  background: transparent;
+  border: none;
+  padding: 0.8rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  position: relative;
+  transition: var(--transition-fast);
+}
+
+.auth-tab-btn.active {
+  color: var(--bg-burgundy);
+}
+
+.auth-tab-btn.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1.5px;
+  left: 0;
+  width: 100%;
+  height: 2.5px;
+  background-color: var(--bg-burgundy);
+}
+
+/* Forms layout */
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.auth-submit-btn {
+  width: 100%;
+  padding: 1rem;
+  font-weight: 600;
+  margin-top: 0.5rem;
+}
+
+.submit-err-msg {
+  text-align: center;
+  margin: 0.5rem 0;
+  font-weight: 500;
+}
+
+/* Social logins divider line */
+.social-divider {
+  display: flex;
+  align-items: center;
+  margin: 1.8rem 0 1.2rem 0;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.social-divider::before, .social-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(42, 11, 21, 0.08);
+}
+
+.social-divider span {
+  padding: 0 1rem;
+}
+
+/* Social Actions buttons Row */
+.social-actions-row {
+  display: flex;
+  gap: 1rem;
+}
+
+.social-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 0.8rem;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.btn-google {
+  background: white;
+  border: 1.5px solid rgba(42, 11, 21, 0.08);
+  color: var(--text-dark);
+}
+
+.btn-google:hover {
+  background: var(--bg-cream);
+  border-color: rgba(42, 11, 21, 0.15);
+}
+
+.btn-facebook {
+  background: #1877f2;
+  border: 1.5px solid #1877f2;
+  color: white;
+}
+
+.btn-facebook:hover {
+  background: #145dbf;
+  border-color: #145dbf;
+  box-shadow: 0 4px 15px rgba(24, 119, 242, 0.25);
+}

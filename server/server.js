@@ -12,7 +12,16 @@ import {
   updateInquiry, 
   getSubscribers, 
   createSubscriber, 
-  getStats 
+  getStats,
+  getActivePromotion,
+  getPromotions,
+  createPromotion,
+  updatePromotion,
+  deletePromotion,
+  getUsers,
+  registerUser,
+  loginUser,
+  socialAuthUser
 } from './db.js';
 
 dotenv.config();
@@ -40,7 +49,7 @@ const adminAuth = (req, res, next) => {
 };
 
 // ==========================================
-// PUBLIC APIs
+// PUBLIC APIs - CATALOG & BOOKINGS
 // ==========================================
 
 // GET all cakes for the catalog
@@ -91,6 +100,65 @@ app.post('/api/subscribers', async (req, res) => {
 
     const result = await createSubscriber(email);
     res.status(201).json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ==========================================
+// PUBLIC APIs - MARKETING PROMOTIONS & AUTH
+// ==========================================
+
+// GET the active promotion popup banner
+app.get('/api/promotions/active', async (req, res) => {
+  try {
+    const activePromo = await getActivePromotion();
+    res.json(activePromo || { message: 'No active promotions' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST register new user
+app.post('/api/auth/register', async (req, res) => {
+  try {
+    const { name, email, password } = req.body;
+    if (!name || !email || !password) {
+      return res.status(400).json({ error: 'Name, email, and password are required' });
+    }
+
+    const newUser = await registerUser({ name, email, password });
+    res.status(201).json(newUser);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// POST user login authentication
+app.post('/api/auth/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email and password are required' });
+    }
+
+    const authenticatedUser = await loginUser(email, password);
+    res.json(authenticatedUser);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// POST social authentication callback (Google / Facebook Auth profile save)
+app.post('/api/auth/social', async (req, res) => {
+  try {
+    const { name, email, provider, providerId, avatar } = req.body;
+    if (!name || !email || !provider || !providerId) {
+      return res.status(400).json({ error: 'Social authentication profile data missing' });
+    }
+
+    const user = await socialAuthUser({ name, email, provider, providerId, avatar });
+    res.json(user);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -180,6 +248,62 @@ app.get('/api/admin/subscribers', adminAuth, async (req, res) => {
   try {
     const subscribers = await getSubscribers();
     res.json(subscribers);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET all promotions for Campaign Manager
+app.get('/api/admin/promotions', adminAuth, async (req, res) => {
+  try {
+    const promotions = await getPromotions();
+    res.json(promotions);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST create new promotion banner
+app.post('/api/admin/promotions', adminAuth, async (req, res) => {
+  try {
+    const newPromo = await createPromotion(req.body);
+    res.status(201).json(newPromo);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// PUT update campaign promotion banner
+app.put('/api/admin/promotions/:id', adminAuth, async (req, res) => {
+  try {
+    const updated = await updatePromotion(req.params.id, req.body);
+    if (!updated) {
+      return res.status(404).json({ error: 'Promotion not found' });
+    }
+    res.json(updated);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// DELETE campaign promotion banner
+app.delete('/api/admin/promotions/:id', adminAuth, async (req, res) => {
+  try {
+    const result = await deletePromotion(req.params.id);
+    if (!result) {
+      return res.status(404).json({ error: 'Promotion not found' });
+    }
+    res.json({ message: 'Promotion deleted successfully' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET all registered users for Admin panel
+app.get('/api/admin/users', adminAuth, async (req, res) => {
+  try {
+    const users = await getUsers();
+    res.json(users);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
