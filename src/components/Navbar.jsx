@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import './Navbar.css';
 
-export default function Navbar({ inquiryCount = 0, onNavigate, currentUser, onSignInClick, onLogout }) {
+export default function Navbar({ inquiryCount = 0, onNavigate, currentUser, onSignInClick, onLogout, onTrackOrdersClick }) {
   const [isOpen, setIsOpen] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
 
@@ -28,9 +28,11 @@ export default function Navbar({ inquiryCount = 0, onNavigate, currentUser, onSi
 
         {/* Desktop Menu */}
         <div className="navbar-links">
+          <a href="#about" className="nav-link" onClick={(e) => { e.preventDefault(); handleNavClick('about'); }}>About Us</a>
           <a href="#gallery" className="nav-link" onClick={(e) => { e.preventDefault(); handleNavClick('gallery'); }}>The Collection</a>
           <a href="#builder" className="nav-link" onClick={(e) => { e.preventDefault(); handleNavClick('builder'); }}>Cake Designer</a>
           <a href="#quiz" className="nav-link" onClick={(e) => { e.preventDefault(); handleNavClick('quiz'); }}>Taste Quiz</a>
+          <a href="#reviews" className="nav-link" onClick={(e) => { e.preventDefault(); handleNavClick('reviews'); }}>Reviews</a>
           
           <button className="nav-btn-inquiry" onClick={() => handleNavClick('inquiry')}>
             <span>Book Inquiry</span>
@@ -59,6 +61,9 @@ export default function Navbar({ inquiryCount = 0, onNavigate, currentUser, onSi
                     <strong>{currentUser.name}</strong>
                     <span>{currentUser.email}</span>
                   </div>
+                  <button className="dropdown-item track-orders-btn" onClick={() => { onTrackOrdersClick(); setShowDropdown(false); }}>
+                    📋 Track Bookings
+                  </button>
                   <button className="dropdown-item logout-btn" onClick={() => { onLogout(); setShowDropdown(false); }}>
                     Log Out
                   </button>
@@ -96,9 +101,11 @@ export default function Navbar({ inquiryCount = 0, onNavigate, currentUser, onSi
           </div>
         )}
 
+        <a href="#about" className="mobile-link" onClick={(e) => { e.preventDefault(); handleNavClick('about'); }}>About Us</a>
         <a href="#gallery" className="mobile-link" onClick={(e) => { e.preventDefault(); handleNavClick('gallery'); }}>The Collection</a>
         <a href="#builder" className="mobile-link" onClick={(e) => { e.preventDefault(); handleNavClick('builder'); }}>Cake Designer</a>
         <a href="#quiz" className="mobile-link" onClick={(e) => { e.preventDefault(); handleNavClick('quiz'); }}>Taste Quiz</a>
+        <a href="#reviews" className="mobile-link" onClick={(e) => { e.preventDefault(); handleNavClick('reviews'); }}>Reviews</a>
         
         <button className="mobile-btn-inquiry" onClick={() => handleNavClick('inquiry')}>
           Book Inquiry
@@ -106,9 +113,14 @@ export default function Navbar({ inquiryCount = 0, onNavigate, currentUser, onSi
         </button>
 
         {currentUser ? (
-          <button className="mobile-btn-logout" onClick={() => { onLogout(); setIsOpen(false); }}>
-            Log Out
-          </button>
+          <>
+            <button className="mobile-btn-track" onClick={() => { onTrackOrdersClick(); setIsOpen(false); }}>
+              Track Bookings
+            </button>
+            <button className="mobile-btn-logout" onClick={() => { onLogout(); setIsOpen(false); }}>
+              Log Out
+            </button>
+          </>
         ) : (
           <button className="mobile-btn-signin" onClick={() => { onSignInClick(); setIsOpen(false); }}>
             Sign In

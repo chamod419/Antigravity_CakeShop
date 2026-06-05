@@ -21,7 +21,11 @@ import {
   getUsers,
   registerUser,
   loginUser,
-  socialAuthUser
+  socialAuthUser,
+  getFeedbacks,
+  createFeedback,
+  updateFeedbackApproval,
+  deleteFeedback
 } from './db.js';
 
 dotenv.config();
@@ -159,6 +163,59 @@ app.post('/api/auth/social', async (req, res) => {
 
     const user = await socialAuthUser({ name, email, provider, providerId, avatar });
     res.json(user);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET customer order history
+app.get('/api/users/orders', async (req, res) => {
+  try {
+    const { email } = req.query;
+    if (!email) {
+      return res.status(400).json({ error: 'Email parameter is required' });
+    }
+    const inquiries = await getInquiries();
+    const userInquiries = inquiries.filter(
+      inq => inq.email.toLowerCase() === email.toLowerCase()
+    );
+    res.json(userInquiries);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ==========================================
+// PUBLIC APIs - CUSTOMER FEEDBACKS
+// ==========================================
+
+// GET all approved feedbacks
+app.get('/api/feedbacks', async (req, res) => {
+  try {
+    const feedbacks = await getFeedbacks(true);
+    res.json(feedbacks);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST a new feedback review
+app.post('/api/feedbacks', async (req, res) => {
+  try {
+    const { name, email, avatar, rating, comment } = req.body;
+    if (!name || !rating || !comment) {
+      return res.status(400).json({ error: 'Name, rating, and comment are required' });
+    }
+
+    const newFeedback = await createFeedback({
+      name,
+      email,
+      avatar,
+      rating: Number(rating),
+      comment
+    });
+
+    res.status(201).json(newFeedback);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -304,6 +361,48 @@ app.get('/api/admin/users', adminAuth, async (req, res) => {
   try {
     const users = await getUsers();
     res.json(users);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET all feedbacks for moderation in Admin Panel
+app.get('/api/admin/feedbacks', adminAuth, async (req, res) => {
+  try {
+    const feedbacks = await getFeedbacks(false);
+    res.json(feedbacks);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// PUT update feedback approval status
+app.put('/api/admin/feedbacks/:id/approve', adminAuth, async (req, res) => {
+  try {
+    const { isApproved } = req.body;
+    if (isApproved === undefined) {
+      return res.status(400).json({ error: 'isApproved boolean status is required' });
+    }
+
+    const updated = await updateFeedbackApproval(req.params.id, isApproved);
+    if (!updated) {
+      return res.status(404).json({ error: 'Feedback review not found' });
+    }
+
+    res.json(updated);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// DELETE a feedback review
+app.delete('/api/admin/feedbacks/:id', adminAuth, async (req, res) => {
+  try {
+    const result = await deleteFeedback(req.params.id);
+    if (!result) {
+      return res.status(404).json({ error: 'Feedback review not found' });
+    }
+    res.json({ message: 'Feedback deleted successfully' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

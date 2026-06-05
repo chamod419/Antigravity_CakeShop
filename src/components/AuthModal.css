@@ -120,6 +120,13 @@
 .social-actions-row {
   display: flex;
   gap: 1rem;
+  align-items: center;
+}
+
+.real-google-btn-wrapper {
+  flex: 1;
+  display: flex;
+  justify-content: center;
 }
 
 .social-btn {
@@ -128,23 +135,14 @@
   align-items: center;
   justify-content: center;
   gap: 0.6rem;
-  padding: 0.8rem;
-  border-radius: 12px;
+  padding: 0.75rem;
+  border-radius: 4px;
   font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
+  height: 40px;
+  box-sizing: border-box;
   transition: var(--transition-smooth);
-}
-
-.btn-google {
-  background: white;
-  border: 1.5px solid rgba(42, 11, 21, 0.08);
-  color: var(--text-dark);
-}
-
-.btn-google:hover {
-  background: var(--bg-cream);
-  border-color: rgba(42, 11, 21, 0.15);
 }
 
 .btn-facebook {
@@ -157,4 +155,15 @@
   background: #145dbf;
   border-color: #145dbf;
   box-shadow: 0 4px 15px rgba(24, 119, 242, 0.25);
+}
+
+.placeholder-warning-note {
+  background: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeeba;
+  padding: 0.8rem 1rem;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  margin-bottom: 1.5rem;
 }

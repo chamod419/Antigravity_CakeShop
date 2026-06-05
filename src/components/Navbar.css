@@ -383,6 +383,34 @@
   cursor: pointer;
 }
 
+.track-orders-btn {
+  color: var(--color-gold);
+}
+
+.track-orders-btn:hover {
+  color: var(--color-gold-hover) !important;
+}
+
+.mobile-btn-track {
+  background: transparent;
+  color: var(--color-gold);
+  border: 1.5px solid var(--color-gold);
+  padding: 0.8rem 2.2rem;
+  border-radius: 30px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  width: 80%;
+  text-align: center;
+  margin: 0.5rem 0;
+  transition: var(--transition-smooth);
+}
+
+.mobile-btn-track:hover {
+  background: var(--color-gold);
+  color: var(--bg-burgundy);
+}
+
 @media (max-width: 968px) {
   .navbar-links {
     display: none;

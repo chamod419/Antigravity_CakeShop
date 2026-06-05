@@ -9,6 +9,9 @@ import Footer from './components/Footer';
 import AdminPanel from './components/AdminPanel';
 import PromoPopup from './components/PromoPopup';
 import AuthModal from './components/AuthModal';
+import AboutUs from './components/AboutUs';
+import Testimonials from './components/Testimonials';
+import OrderTracker from './components/OrderTracker';
 import './App.css';
 
 const API_BASE = 'http://localhost:5000/api';
@@ -24,6 +27,7 @@ function App() {
   const [showAuth, setShowAuth] = useState(false);
   const [activePromo, setActivePromo] = useState(null);
   const [showPromo, setShowPromo] = useState(false);
+  const [showTracker, setShowTracker] = useState(false);
 
   // Fetch cakes collection from Backend API
   const fetchCakes = async () => {
@@ -226,10 +230,15 @@ function App() {
         currentUser={currentUser}
         onSignInClick={() => setShowAuth(true)}
         onLogout={handleLogout}
+        onTrackOrdersClick={() => setShowTracker(true)}
       />
       
       <Hero onNavigate={navigateToSection} />
       
+      <div className="reveal-section fade-up-section">
+        <AboutUs />
+      </div>
+
       <div className="reveal-section fade-up-section">
         <Gallery 
           cakesList={cakesList}
@@ -248,6 +257,13 @@ function App() {
         <TasteProfiler 
           onLoadInDesigner={handleLoadInDesigner} 
           onAddToInquiry={handleAddToInquiry} 
+        />
+      </div>
+
+      <div className="reveal-section fade-up-section">
+        <Testimonials 
+          currentUser={currentUser} 
+          onSignInClick={() => setShowAuth(true)} 
         />
       </div>
 
@@ -288,6 +304,14 @@ function App() {
           onLogin={handleLogin}
           onRegister={handleRegister}
           onSocialLogin={handleSocialLogin}
+        />
+      )}
+
+      {/* Customer Order Tracker modal overlay */}
+      {showTracker && currentUser && (
+        <OrderTracker 
+          currentUser={currentUser}
+          onClose={() => setShowTracker(false)}
         />
       )}
     </>

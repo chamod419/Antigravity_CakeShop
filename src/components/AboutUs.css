@@ -1,0 +1,131 @@
+.about-section {
+  background-color: var(--bg-cream);
+  position: relative;
+  overflow: hidden;
+}
+
+.about-header {
+  margin-bottom: 5rem;
+}
+
+.about-subtitle {
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  color: var(--color-gold);
+  font-weight: 600;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.about-title {
+  font-size: 3rem;
+  margin-bottom: 1.5rem;
+}
+
+.title-divider {
+  width: 80px;
+  height: 3px;
+  background: linear-gradient(90deg, var(--bg-burgundy), var(--color-gold));
+  margin: 0 auto;
+  border-radius: 20px;
+}
+
+.about-content {
+  align-items: flex-start;
+}
+
+.about-story-col {
+  padding-right: 2rem;
+}
+
+.story-heading {
+  font-size: 2.2rem;
+  color: var(--bg-burgundy);
+  margin-bottom: 1.8rem;
+  line-height: 1.3;
+}
+
+.story-text {
+  font-size: 1.1rem;
+  color: var(--text-muted);
+  margin-bottom: 1.5rem;
+  line-height: 1.8;
+}
+
+.about-signature-block {
+  margin-top: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  border-left: 2px solid var(--color-gold);
+  padding-left: 1.5rem;
+}
+
+.signature-title {
+  font-size: 1.8rem;
+  color: var(--bg-burgundy);
+  font-style: italic;
+  font-weight: 500;
+}
+
+.signature-role {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--color-gold);
+  margin-top: 0.25rem;
+  font-weight: 500;
+}
+
+.about-pillars-col {
+  display: flex;
+  flex-direction: column;
+  gap: 1.8rem;
+}
+
+.pillar-card {
+  display: flex;
+  padding: 1.8rem;
+  gap: 1.5rem;
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.pillar-icon {
+  font-size: 2rem;
+  background: var(--color-gold-light);
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1px solid rgba(197, 160, 89, 0.25);
+  box-shadow: 0 4px 10px rgba(197, 160, 89, 0.1);
+}
+
+.pillar-title {
+  font-size: 1.35rem;
+  color: var(--bg-burgundy);
+  margin-bottom: 0.5rem;
+}
+
+.pillar-desc {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+@media (max-width: 968px) {
+  .about-story-col {
+    padding-right: 0;
+    margin-bottom: 3rem;
+  }
+  .about-title {
+    font-size: 2.2rem;
+  }
+  .story-heading {
+    font-size: 1.8rem;
+  }
+}

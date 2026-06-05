@@ -18,6 +18,7 @@ export default function AdminPanel({ onClose }) {
   const [subscribers, setSubscribers] = useState([]);
   const [promotions, setPromotions] = useState([]);
   const [users, setUsers] = useState([]);
+  const [feedbacks, setFeedbacks] = useState([]);
   const [loading, setLoading] = useState(false);
   
   // Cake manager states
@@ -80,6 +81,11 @@ export default function AdminPanel({ onClose }) {
       const userRes = await fetch(`${API_BASE}/admin/users`, { headers });
       const userData = await userRes.json();
       if (!userData.error) setUsers(userData);
+
+      // 7. Fetch Feedbacks
+      const feedbackRes = await fetch(`${API_BASE}/admin/feedbacks`, { headers });
+      const feedbackData = await feedbackRes.json();
+      if (!feedbackData.error) setFeedbacks(feedbackData);
 
     } catch (err) {
       console.error('Error loading admin panel records:', err.message);
@@ -288,6 +294,40 @@ export default function AdminPanel({ onClose }) {
     setEditingPromoId(null);
   };
 
+  const handleToggleFeedbackApproval = async (id, currentStatus) => {
+    try {
+      const res = await fetch(`${API_BASE}/admin/feedbacks/${id}/approve`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-pin': '1234'
+        },
+        body: JSON.stringify({ isApproved: !currentStatus })
+      });
+      const data = await res.json();
+      if (!data.error) {
+        setFeedbacks(prev => prev.map(f => f._id === id ? data : f));
+      }
+    } catch (err) {
+      console.error('Failed to toggle feedback approval:', err.message);
+    }
+  };
+
+  const handleDeleteFeedback = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this customer feedback?')) return;
+    try {
+      const res = await fetch(`${API_BASE}/admin/feedbacks/${id}`, {
+        method: 'DELETE',
+        headers: { 'x-admin-pin': '1234' }
+      });
+      if (res.ok) {
+        setFeedbacks(prev => prev.filter(f => f._id !== id));
+      }
+    } catch (err) {
+      console.error('Failed to delete feedback:', err.message);
+    }
+  };
+
   return (
     <div className="admin-wrapper flex-center">
       {/* PIN Access Gate overlay */}
@@ -345,6 +385,9 @@ export default function AdminPanel({ onClose }) {
               </button>
               <button className={`sidebar-tab ${activeTab === 'users' ? 'active' : ''}`} onClick={() => setActiveTab('users')}>
                 👑 Customers List ({users.length})
+              </button>
+              <button className={`sidebar-tab ${activeTab === 'feedbacks' ? 'active' : ''}`} onClick={() => setActiveTab('feedbacks')}>
+                💬 Reviews Moderation ({feedbacks.length})
               </button>
             </aside>
 
@@ -671,6 +714,93 @@ export default function AdminPanel({ onClose }) {
                                   </span>
                                 </td>
                                 <td>{new Date(usr.createdAt).toLocaleDateString()}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* TAB 7: Reviews Moderation */}
+                  {activeTab === 'feedbacks' && (
+                    <div className="tab-viewfeedbacks animate-fade">
+                      <h3 className="tab-title">Customer Reviews Moderation</h3>
+                      <div className="table-responsive">
+                        <table className="admin-table">
+                          <thead>
+                            <tr>
+                              <th>Client</th>
+                              <th>Email</th>
+                              <th>Rating</th>
+                              <th>Comment</th>
+                              <th>Submitted On</th>
+                              <th>Status</th>
+                              <th>Actions</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {feedbacks.map(fb => (
+                              <tr key={fb._id}>
+                                <td>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                                    {fb.avatar ? (
+                                      <img src={fb.avatar} alt={fb.name} style={{ width: '36px', height: '36px', borderRadius: '50%' }} />
+                                    ) : (
+                                      <span className="navbar-avatar-initial" style={{ width: '36px', height: '36px', fontSize: '1rem' }}>{fb.name.charAt(0)}</span>
+                                    )}
+                                    <strong>{fb.name}</strong>
+                                  </div>
+                                </td>
+                                <td>{fb.email || 'N/A'}</td>
+                                <td>
+                                  <span style={{ color: '#f1c40f', fontSize: '1.1rem' }}>
+                                    {'★'.repeat(fb.rating)}{'☆'.repeat(5 - fb.rating)}
+                                  </span>
+                                </td>
+                                <td style={{ maxWidth: '280px', whiteSpace: 'normal', fontSize: '0.9rem', color: '#bdc3c7' }}>
+                                  "{fb.comment}"
+                                </td>
+                                <td>{new Date(fb.createdAt).toLocaleDateString()}</td>
+                                <td>
+                                  <span 
+                                    className={`status-badge-val`}
+                                    style={{
+                                      background: fb.isApproved ? '#27ae60' : '#d35400',
+                                      color: 'white',
+                                      padding: '0.25rem 0.6rem',
+                                      borderRadius: '4px',
+                                      fontSize: '0.75rem',
+                                      fontWeight: '600'
+                                    }}
+                                  >
+                                    {fb.isApproved ? 'Approved' : 'Pending'}
+                                  </span>
+                                </td>
+                                <td>
+                                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                    <button 
+                                      className="btn-secondary"
+                                      onClick={() => handleToggleFeedbackApproval(fb._id, fb.isApproved)}
+                                      style={{
+                                        padding: '0.4rem 0.8rem',
+                                        fontSize: '0.8rem',
+                                        background: fb.isApproved ? '#d35400' : '#27ae60',
+                                        color: 'white',
+                                        borderColor: 'transparent'
+                                      }}
+                                    >
+                                      {fb.isApproved ? 'Disapprove' : 'Approve'}
+                                    </button>
+                                    <button 
+                                      className="btn-primary delete-btn" 
+                                      onClick={() => handleDeleteFeedback(fb._id)}
+                                      style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem' }}
+                                    >
+                                      Delete
+                                    </button>
+                                  </div>
+                                </td>
                               </tr>
                             ))}
                           </tbody>

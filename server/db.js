@@ -7,6 +7,7 @@ import Inquiry from './models/Inquiry.js';
 import Subscriber from './models/Subscriber.js';
 import User from './models/User.js';
 import Promotion from './models/Promotion.js';
+import Feedback from './models/Feedback.js';
 
 const DB_FILE = path.resolve('db.json');
 let useLocalJSON = false;
@@ -77,6 +78,36 @@ const DEFAULT_PROMOTIONS = [
   }
 ];
 
+const DEFAULT_FEEDBACKS = [
+  {
+    _id: 'feedback-seed-1',
+    name: 'Nadeesha Perera',
+    email: 'nadeesha@example.com',
+    rating: 5,
+    comment: 'The Duchess wedding cake was the absolute star of our reception! The classic vanilla bean flavor and gorgeous gold leaf detail left everyone in awe.',
+    isApproved: true,
+    createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString()
+  },
+  {
+    _id: 'feedback-seed-2',
+    name: 'Roshan Silva',
+    email: 'roshan@example.com',
+    rating: 5,
+    comment: 'Midnight Cocoa Drip is simply out of this world. The double-layer chocolate fudge is rich and perfectly balanced with fresh blackberries.',
+    isApproved: true,
+    createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString()
+  },
+  {
+    _id: 'feedback-seed-3',
+    name: 'Dilhani Alwis',
+    email: 'dilhani@example.com',
+    rating: 4,
+    comment: 'Tried the Emerald Crepe matcha cake. Very delicate layers and authentic Uji matcha powder. Perfect for tea lovers!',
+    isApproved: true,
+    createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString()
+  }
+];
+
 // Helper to read JSON DB
 const readJSON = () => {
   try {
@@ -86,7 +117,8 @@ const readJSON = () => {
         inquiries: [], 
         subscribers: [],
         users: [],
-        promotions: DEFAULT_PROMOTIONS
+        promotions: DEFAULT_PROMOTIONS,
+        feedbacks: DEFAULT_FEEDBACKS
       };
       fs.writeFileSync(DB_FILE, JSON.stringify(initialData, null, 2));
       return initialData;
@@ -98,6 +130,7 @@ const readJSON = () => {
     let migrated = false;
     if (!parsed.users) { parsed.users = []; migrated = true; }
     if (!parsed.promotions) { parsed.promotions = DEFAULT_PROMOTIONS; migrated = true; }
+    if (!parsed.feedbacks) { parsed.feedbacks = DEFAULT_FEEDBACKS; migrated = true; }
     
     if (migrated) {
       fs.writeFileSync(DB_FILE, JSON.stringify(parsed, null, 2));
@@ -105,7 +138,14 @@ const readJSON = () => {
     return parsed;
   } catch (err) {
     console.error('Error reading JSON database:', err.message);
-    return { cakes: DEFAULT_CAKES, inquiries: [], subscribers: [], users: [], promotions: DEFAULT_PROMOTIONS };
+    return { 
+      cakes: DEFAULT_CAKES, 
+      inquiries: [], 
+      subscribers: [], 
+      users: [], 
+      promotions: DEFAULT_PROMOTIONS,
+      feedbacks: DEFAULT_FEEDBACKS
+    };
   }
 };
 
@@ -137,6 +177,19 @@ export const initializeDB = async (mongoUri) => {
         isActive: p.isActive
       })));
       console.log('Seeded default active promotion into MongoDB.');
+    }
+
+    // Seed default feedbacks in MongoDB if collection is empty
+    const feedbackCount = await Feedback.countDocuments();
+    if (feedbackCount === 0) {
+      await Feedback.insertMany(DEFAULT_FEEDBACKS.map(f => ({
+        name: f.name,
+        email: f.email,
+        rating: f.rating,
+        comment: f.comment,
+        isApproved: f.isApproved
+      })));
+      console.log('Seeded default feedbacks into MongoDB.');
     }
   } catch (err) {
     console.warn('\n⚠️  MongoDB connection failed:', err.message);
@@ -516,4 +569,64 @@ export const getStats = async () => {
     totalSubscribers,
     estimatedRevenue: `$${estimatedRevenue}`
   };
+};
+
+// ==========================================
+// DB OPERATIONS ADAPTERS - FEEDBACKS
+// ==========================================
+
+export const getFeedbacks = async (approvedOnly = true) => {
+  if (useLocalJSON) {
+    const allFeedbacks = readJSON().feedbacks || [];
+    const filtered = approvedOnly ? allFeedbacks.filter(f => f.isApproved) : allFeedbacks;
+    return filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  }
+  const query = approvedOnly ? { isApproved: true } : {};
+  return await Feedback.find(query).sort({ createdAt: -1 });
+};
+
+export const createFeedback = async (feedbackData) => {
+  if (useLocalJSON) {
+    const db = readJSON();
+    const newFeedback = {
+      _id: `json-fb-${Date.now()}`,
+      ...feedbackData,
+      isApproved: false, // default requires admin approval
+      createdAt: new Date().toISOString()
+    };
+    db.feedbacks = db.feedbacks || [];
+    db.feedbacks.push(newFeedback);
+    writeJSON(db);
+    return newFeedback;
+  }
+  const newFeedback = new Feedback({
+    ...feedbackData,
+    isApproved: false
+  });
+  return await newFeedback.save();
+};
+
+export const updateFeedbackApproval = async (id, isApproved) => {
+  if (useLocalJSON) {
+    const db = readJSON();
+    const index = db.feedbacks.findIndex(f => f._id === id);
+    if (index === -1) return null;
+    db.feedbacks[index].isApproved = isApproved;
+    db.feedbacks[index].updatedAt = new Date().toISOString();
+    writeJSON(db);
+    return db.feedbacks[index];
+  }
+  return await Feedback.findByIdAndUpdate(id, { isApproved }, { new: true });
+};
+
+export const deleteFeedback = async (id) => {
+  if (useLocalJSON) {
+    const db = readJSON();
+    const initialLength = db.feedbacks.length;
+    db.feedbacks = db.feedbacks.filter(f => f._id !== id);
+    if (db.feedbacks.length === initialLength) return null;
+    writeJSON(db);
+    return { message: 'Deleted' };
+  }
+  return await Feedback.findByIdAndDelete(id);
 };

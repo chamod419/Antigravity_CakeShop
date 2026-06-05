@@ -40,20 +40,23 @@
 
 /* Visualizer Panel styling */
 .builder-visualizer {
-  height: 580px;
+  height: 620px;
   background: white;
   border-radius: 20px;
   box-shadow: 0 15px 40px rgba(42, 11, 21, 0.08);
   position: sticky;
   top: 100px;
   padding: 3rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 @media (max-width: 968px) {
   .builder-visualizer {
     position: relative;
     top: 0;
-    height: 400px;
+    height: 440px;
     padding: 1.5rem;
   }
 }
@@ -64,27 +67,29 @@
   flex-direction: column;
   align-items: center;
   width: 100%;
-  height: 100%;
+  height: 90%;
   justify-content: flex-end;
   padding-bottom: 40px;
 }
 
 .stand-plate {
-  width: 320px;
-  height: 14px;
-  background: linear-gradient(90deg, #ebd0a7, #c5a059);
+  width: 330px;
+  height: 16px;
+  background: linear-gradient(90deg, #ebd0a7 0%, #c5a059 50%, #9e7f41 100%);
   border-radius: 50% / 50%;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15), 
+              inset 0 2px 4px rgba(255, 255, 255, 0.3);
   z-index: 5;
 }
 
 .stand-base {
-  width: 100px;
-  height: 60px;
-  background: linear-gradient(180deg, #b89772, #2a0b15);
+  width: 110px;
+  height: 70px;
+  background: linear-gradient(180deg, #b89772 0%, #4a2e1d 30%, #2a0b15 100%);
   clip-path: polygon(15% 0%, 85% 0%, 100% 100%, 0% 100%);
-  margin-top: -6px;
+  margin-top: -8px;
   z-index: 4;
+  box-shadow: 0 10px 15px rgba(0,0,0,0.2);
 }
 
 .cake-tiers-container {
@@ -97,43 +102,53 @@
   z-index: 6;
 }
 
-/* Cake Tier 3D Cylinder */
+/* 3D Cylindrical Cake Tiers */
 .cake-tier {
   width: 240px;
   height: 120px;
   border-radius: 120px / 40px;
   position: relative;
   transition: var(--transition-smooth);
-  box-shadow: inset 0 -20px 30px rgba(0, 0, 0, 0.12), 
-              0 10px 15px rgba(42, 11, 21, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   display: flex;
   justify-content: center;
   align-items: center;
-  overflow: hidden;
+  overflow: visible;
+  /* Volumetric linear lighting */
+  background-image: linear-gradient(90deg, 
+    rgba(0, 0, 0, 0.15) 0%, 
+    rgba(0, 0, 0, 0.03) 15%, 
+    rgba(255, 255, 255, 0.15) 50%, 
+    rgba(0, 0, 0, 0.05) 85%, 
+    rgba(0, 0, 0, 0.22) 100%
+  );
+  box-shadow: inset 0 -15px 25px rgba(0,0,0,0.1),
+              0 10px 20px rgba(42, 11, 21, 0.15);
 }
 
 /* 3D Top surface oval simulation */
 .cake-tier::before {
   content: '';
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
+  top: -1px;
+  left: -1px;
+  right: -1px;
   height: 40px;
   background: inherit;
   border-radius: 50% / 50%;
-  filter: brightness(1.05);
-  border-bottom: 1.5px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.25);
   z-index: 2;
-  box-shadow: inset 0 2px 5px rgba(255, 255, 255, 0.3);
+  /* highlight effect on the top edge */
+  box-shadow: inset 0 2px 6px rgba(255, 255, 255, 0.4),
+              0 2px 2px rgba(0, 0, 0, 0.05);
+  filter: brightness(1.04);
 }
 
 .tier-top {
-  width: 170px;
+  width: 180px;
   height: 90px;
-  border-radius: 85px / 30px;
-  margin-bottom: -15px; /* overlay tier bottom */
+  border-radius: 90px / 30px;
+  margin-bottom: -18px; /* overlay bottom tier */
   z-index: 8;
 }
 
@@ -154,42 +169,55 @@
   height: 100%;
   opacity: 0.95;
   border-radius: inherit;
+  pointer-events: none;
+  z-index: 1;
 }
 
-/* Textured icing */
+/* Textured icing overlay */
 .textured-overlay {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: repeating-linear-gradient(45deg, rgba(255,255,255,0.05), rgba(255,255,255,0.05) 10px, rgba(0,0,0,0.03) 10px, rgba(0,0,0,0.03) 20px);
+  background: repeating-linear-gradient(40deg, 
+    rgba(255,255,255,0.06), 
+    rgba(255,255,255,0.06) 8px, 
+    rgba(0,0,0,0.04) 8px, 
+    rgba(0,0,0,0.04) 16px
+  );
   border-radius: inherit;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.8;
 }
 
-/* Edge Piping */
+/* Pearl border piping */
 .piping-rim {
   position: absolute;
-  width: 104%;
-  height: 8px;
-  border-radius: 50%;
+  width: 100%;
+  height: 12px;
+  bottom: -4px;
   z-index: 3;
-  filter: brightness(0.92);
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  /* repeating radial dot patterns simulating royal icing pearls */
+  background-image: radial-gradient(circle, rgba(255,255,255,0.95) 2.5px, transparent 3.5px);
+  background-size: 8px 8px;
+  background-repeat: repeat-x;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.15));
 }
 
 .piping-rim.top {
-  bottom: 0px;
+  bottom: -4px;
 }
 
 .piping-rim.bottom {
-  bottom: 0px;
+  bottom: -4px;
 }
 
 /* Custom Writing style */
 .tier-text {
   position: absolute;
-  top: 45%;
+  top: 48%;
   z-index: 10;
   font-size: 1.1rem;
   text-align: center;
@@ -200,7 +228,7 @@
 }
 
 .tier-top .tier-text {
-  top: 40%;
+  top: 45%;
 }
 
 .tier-text.cursive {
@@ -223,65 +251,291 @@
 
 .tier-text.light-font {
   color: var(--text-light);
-  text-shadow: 0px 1px 2px rgba(0, 0, 0, 0.6);
+  text-shadow: 0px 1.5px 3px rgba(0, 0, 0, 0.7);
 }
 
-/* Toppings visual representations */
-.toppings-visual-container {
+/* Volumetric CSS Macarons */
+.macarons-cluster {
   position: absolute;
-  top: -20px;
+  top: -12px;
+  display: flex;
+  gap: 0.8rem;
+  z-index: 12;
+}
+
+.macaron-element {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.macaron-1 { transform: rotate(-12deg) translateY(-2px); }
+.macaron-2 { transform: scale(1.05) translateY(-5px); }
+.macaron-3 { transform: rotate(15deg) translateY(-1px); }
+
+.cookie-top, .cookie-bottom {
+  width: 26px;
+  height: 8px;
+  background: linear-gradient(180deg, #F7CAD0 0%, #f1a5b1 100%);
+  border: 0.5px solid rgba(255,255,255,0.3);
+  box-shadow: inset 0 1px 2px rgba(255,255,255,0.4);
+}
+
+.cookie-top {
+  border-radius: 12px 12px 3px 3px;
+}
+
+.cookie-bottom {
+  border-radius: 3px 3px 12px 12px;
+}
+
+.filling {
+  width: 24px;
+  height: 4px;
+  background: #fffdf9;
+  border-radius: 1px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+/* Set macaron colors to match flavor palette or pink */
+.flavor-chocolate .macaron-element .cookie-top,
+.flavor-chocolate .macaron-element .cookie-bottom {
+  background: linear-gradient(180deg, #8c6239 0%, #4a2e1d 100%);
+}
+
+/* Elegant Flowers */
+.flowers-cluster {
+  position: absolute;
+  top: -24px;
   width: 100%;
-  height: 40px;
   display: flex;
   justify-content: center;
-  align-items: center;
+  gap: 1.5rem;
   z-index: 12;
+}
+
+.flower-svg {
+  width: 48px;
+  height: 48px;
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.15));
+  transition: var(--transition-smooth);
+}
+
+.flower-1 {
+  transform: rotate(-10deg) scale(1.1);
+}
+
+.flower-2 {
+  transform: rotate(15deg) translate(5px, 8px) scale(0.9);
+}
+
+.flowers-cluster:hover .flower-1 {
+  transform: rotate(-18deg) scale(1.18);
+}
+
+/* Glossy Berries */
+.berries-cluster {
+  position: absolute;
+  top: -10px;
+  display: flex;
+  justify-content: center;
+  gap: 0.4rem;
+  z-index: 12;
+}
+
+.berry {
+  border-radius: 50%;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  transition: var(--transition-smooth);
+}
+
+.strawberry {
+  width: 18px;
+  height: 22px;
+  background: radial-gradient(circle at 35% 35%, #ff4d4d 0%, #b30000 80%, #660000 100%);
+  border-radius: 50% 50% 40% 40% / 40% 40% 60% 60%;
+  transform: rotate(-15deg);
+}
+
+.blueberry-1 {
+  width: 12px;
+  height: 12px;
+  background: radial-gradient(circle at 35% 35%, #4d66ff 0%, #1a237e 75%, #0d1137 100%);
+}
+
+.blueberry-2 {
+  width: 11px;
+  height: 11px;
+  background: radial-gradient(circle at 35% 35%, #4d66ff 0%, #1a237e 75%, #0d1137 100%);
+  transform: translateY(3px);
+}
+
+.raspberry {
+  width: 14px;
+  height: 14px;
+  background: radial-gradient(circle at 35% 35%, #ff3377 0%, #b30047 80%, #660029 100%);
+  transform: rotate(10deg) translateY(-2px);
+}
+
+/* Edible Gold Leaf Flakes */
+.gold-cluster {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 4;
   pointer-events: none;
 }
 
-.topping-item {
-  font-size: 1.4rem;
-  letter-spacing: 8px;
-  text-shadow: 0 4px 6px rgba(0,0,0,0.1);
+.gold-flake {
+  position: absolute;
+  background: linear-gradient(135deg, #ffe066 0%, #d4af37 50%, #b38600 100%);
+  opacity: 0.85;
+  box-shadow: 0 0 5px rgba(212, 175, 55, 0.4);
+  animation: shimmer-gold 4s ease-in-out infinite alternate;
 }
 
-.macaron-topping {
-  position: absolute;
-  top: -8px;
-}
+.flake-1 { width: 12px; height: 18px; top: 15px; left: 35px; clip-path: polygon(20% 0%, 80% 20%, 100% 80%, 40% 100%, 0% 50%); animation-delay: 0.2s; }
+.flake-2 { width: 8px; height: 12px; top: 25px; left: 140px; clip-path: polygon(50% 0%, 100% 30%, 80% 90%, 10% 70%); animation-delay: 1.1s; }
+.flake-3 { width: 14px; height: 22px; top: 40px; left: 60px; clip-path: polygon(0% 15%, 85% 0%, 100% 60%, 50% 100%, 15% 75%); animation-delay: 0.6s; }
+.flake-4 { width: 10px; height: 15px; top: 65px; left: 190px; clip-path: polygon(30% 0%, 100% 10%, 70% 80%, 0% 100%); animation-delay: 1.8s; }
+.flake-5 { width: 7px; height: 9px; top: 45px; left: 90px; clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); animation-delay: 2.2s; }
+.flake-6 { width: 15px; height: 18px; top: 20px; left: 100px; clip-path: polygon(10% 20%, 90% 10%, 100% 70%, 20% 90%); animation-delay: 0.9s; }
 
-.flower-topping {
-  position: absolute;
-  top: -12px;
-  font-size: 1.6rem;
-}
-
-.berry-topping {
-  position: absolute;
-  top: -6px;
-}
-
-.gold-topping {
-  position: absolute;
-  top: -5px;
-  font-size: 2.2rem;
-  color: var(--color-gold);
+@keyframes shimmer-gold {
+  0% { transform: scale(1) rotate(0deg); filter: brightness(1); }
+  100% { transform: scale(1.08) rotate(5deg); filter: brightness(1.15); }
 }
 
 /* Geometric Square modifiers */
 .shape-square .cake-tier {
-  border-radius: 8px;
-  box-shadow: inset 0 -15px 25px rgba(0, 0, 0, 0.12), 
-              0 8px 12px rgba(42, 11, 21, 0.1);
+  border-radius: 12px;
+  box-shadow: inset 0 -15px 25px rgba(0, 0, 0, 0.1), 
+              0 10px 18px rgba(42, 11, 21, 0.12);
 }
 
 .shape-square .cake-tier::before {
-  border-radius: 8px;
-  height: 15px;
+  border-radius: 10px;
+  height: 20px;
 }
 
 .shape-square .stand-plate {
+  border-radius: 12px;
+}
+
+/* Reset builder Button positioning */
+.reset-builder-btn {
+  align-self: center;
+  font-size: 0.85rem;
+  padding: 0.5rem 1.2rem;
+  border-radius: 20px;
+}
+
+/* Config Wizard Tabs */
+.builder-tabs {
+  display: flex;
+  gap: 0.5rem;
+  border-bottom: 2px solid var(--color-gold-light);
+  padding-bottom: 0.8rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.tab-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 0.88rem;
+  padding: 0.6rem 1rem;
+  cursor: pointer;
+  transition: var(--transition-fast);
   border-radius: 8px;
+}
+
+.tab-btn:hover {
+  color: var(--bg-burgundy);
+  background: var(--color-gold-light);
+}
+
+.tab-btn.active {
+  color: var(--text-light);
+  background: var(--bg-burgundy);
+}
+
+/* Tabs Panel anims */
+.tab-pane {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.section-desc {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-top: -0.4rem;
+  margin-bottom: 0.4rem;
+}
+
+.tier-select-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.4rem;
+  text-align: left;
+  border-radius: 12px;
+}
+
+.tier-icon-preview {
+  display: block;
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  border: 1.5px solid currentColor;
+  position: relative;
+}
+
+.tier-icon-preview.single {
+  background: currentColor;
+  opacity: 0.6;
+}
+
+.tier-icon-preview.double::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: 3px;
+  width: 14px;
+  height: 6px;
+  border: 1.5px solid currentColor;
+  background: currentColor;
+}
+
+.tier-icon-preview.double {
+  background: currentColor;
+  opacity: 0.6;
+  margin-top: 8px;
+}
+
+.shape-select-btn {
+  flex: 1;
+  padding: 0.8rem 1.5rem;
+  font-weight: 600;
+}
+
+.tab-next-btn {
+  margin-top: 1.5rem;
+  align-self: flex-end;
+}
+
+.tab-buttons-row {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1.5rem;
 }
 
 /* Config panel styling */
@@ -292,14 +546,12 @@
   box-shadow: 0 15px 40px rgba(42, 11, 21, 0.05);
   display: flex;
   flex-direction: column;
-  gap: 2rem;
 }
 
 .config-title {
   font-size: 1.8rem;
   color: var(--text-dark);
-  border-bottom: 1.5px solid var(--color-gold-light);
-  padding-bottom: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .config-section {
@@ -338,7 +590,7 @@
   border-radius: 20px;
   cursor: pointer;
   font-size: 0.85rem;
-  font-weight: 5500;
+  font-weight: 500;
   transition: var(--transition-fast);
 }
 
@@ -402,10 +654,19 @@
   border: 1px solid rgba(0,0,0,0.1);
 }
 
-.flavor-name-label {
+.flavor-meta {
+  display: flex;
+  flex-direction: column;
+}
+
+.flavor-meta strong {
   font-size: 0.85rem;
-  font-weight: 500;
   color: var(--text-dark);
+}
+
+.flavor-meta span {
+  font-size: 0.72rem;
+  color: var(--text-muted);
 }
 
 /* Toppings list cards */
@@ -435,19 +696,29 @@
 }
 
 .topping-emoji {
-  font-size: 1.3rem;
+  font-size: 1.5rem;
 }
 
 .topping-details {
   display: flex;
   justify-content: space-between;
   width: 100%;
+  align-items: center;
 }
 
-.topping-title-label {
+.topping-meta-txt {
+  display: flex;
+  flex-direction: column;
+}
+
+.topping-meta-txt strong {
   font-size: 0.85rem;
-  font-weight: 500;
   color: var(--text-dark);
+}
+
+.topping-meta-txt span {
+  font-size: 0.72rem;
+  color: var(--text-muted);
 }
 
 .topping-price-label {
@@ -487,7 +758,7 @@
   align-items: center;
   border-top: 1px solid rgba(42, 11, 21, 0.1);
   padding-top: 1.5rem;
-  margin-top: 1rem;
+  margin-top: 2rem;
 }
 
 .price-box {
@@ -507,6 +778,12 @@
   font-size: 2rem;
   font-weight: 700;
   color: var(--bg-burgundy);
+}
+
+.price-breakdown-tooltip {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  margin-top: 2px;
 }
 
 .inquiry-submit-btn {
